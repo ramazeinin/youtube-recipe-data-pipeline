@@ -1,0 +1,39 @@
+(function extractVideos() {
+    const videoElements = document.querySelectorAll('a#video-title-link');
+    
+    if (videoElements.length === 0) {
+        console.error("Tidak ada video ditemukan!");
+        return;
+    }
+
+    let output = "";
+    
+    videoElements.forEach((video, index) => {
+        const title = video.getAttribute('title') || video.innerText.trim();
+        const url = video.href;
+        
+        // Ekstrak Video ID dari URL (misal: ambil "hAErKyAoAKI" dari "watch?v=hAErKyAoAKI")
+        const urlObj = new URL(url);
+        const videoId = urlObj.searchParams.get("v");
+        
+        // Buat URL Thumbnail
+        let thumbnailUrl = "";
+        if (videoId) {
+            thumbnailUrl = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+        }
+        
+        // Tambahkan ke output
+        output += `${index + 1}. ${title}\n   Link: ${url}\n   Thumb: ${thumbnailUrl}\n\n`;
+    });
+
+    console.log(`Berhasil mengekstrak ${videoElements.length} video dengan thumbnail! Mendownload...`);
+
+    const blob = new Blob([output], { type: 'text/plain' });
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(blob);
+    downloadLink.download = 'parsed_videos_with_thumbnails.txt';
+    
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+})();
